@@ -14,7 +14,7 @@ class App extends React.Component{
       super(props);
       this.state = {
         data: [
-          {name: 'Alex', salary: 5000, increase: false, rise: false, id: 1},
+          {name: 'Alex', salary: 5000, increase: false, rise: true, id: 1},
           {name: 'John', salary: 3000, increase: true, rise: false, id: 2},
           {name: 'Mick', salary: 900, increase: false, rise: true, id: 3}
         ],
@@ -61,9 +61,9 @@ class App extends React.Component{
   }
 
   onFilter = (mode) => {
-    const filters = mode === "default" ? [] : [...this.state.filters];
-    if ((mode === "promoted" || mode === "moreThanValue") && !filters.includes(mode)) {
-        filters.push(mode)
+    let filters = mode === "default" ? [] : [...this.state.filters];
+    if ((mode === "promoted" || mode === "moreThanValue")) {
+      filters = filters.includes(mode) ? filters.filter(f => f != mode) : [...filters, mode];
     }
     this.setState(() => {
         return {
@@ -80,10 +80,12 @@ class App extends React.Component{
   }
 
   filterVisibleData = (data, str, filters) => {
-    return str.length > 0 || filters.includes("promoted") || filters.includes("moreThanValue")
+    const isPromotedFilterOn = filters.includes("promoted");
+    const isMoreThanValueFilterOn = filters.includes("moreThanValue");
+    return str.length > 0 || isPromotedFilterOn || isMoreThanValueFilterOn
           ? data.filter(item => {
-            if ((filters.includes("promoted") && !item.rise) || (filters.includes("moreThanValue") && item.salary > 1000)) {
-              return;
+            if ((isPromotedFilterOn && !item.rise) || (isMoreThanValueFilterOn && item.salary > 1000)) {
+              return false;
             }
             return item.name.toUpperCase().includes(str.toUpperCase())
           }) 
