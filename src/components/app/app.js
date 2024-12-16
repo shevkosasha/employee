@@ -19,11 +19,7 @@ class App extends React.Component{
           {name: 'Mick', salary: 900, increase: false, rise: true, id: 3}
         ],
         searchStr: '',
-        filters: []
-        // {
-        //   byPromotion: false,
-        //   bySalary: false,
-        // }
+        filters: [],
       }
       this.maxId = 4;
   }
@@ -47,7 +43,6 @@ class App extends React.Component{
   }
 
   onToggleProp = (id, prop) => {
-    console.log(`${prop} ${id}`); 
     this.setState(({data}) => {
       const index = data.findIndex(item => item.id === id);
       data[index] = {...data[index], [prop]: !data[index][prop]};
@@ -65,11 +60,15 @@ class App extends React.Component{
     })
   }
 
-  onFilter = (filterState) => {
+  onFilter = (mode) => {
+    const filters = mode === "default" ? [] : [...this.state.filters];
+    if ((mode === "promoted" || mode === "moreThanValue") && !filters.includes(mode)) {
+        filters.push(mode)
+    }
     this.setState(() => {
-      return {
-        filters: filterState
-      }
+        return {
+            filters: filters
+        }
     })
   }
 
@@ -81,7 +80,6 @@ class App extends React.Component{
   }
 
   filterVisibleData = (data, str, filters) => {
-    // return str.length > 0 || filters.byPromotion || filters.bySalary
     return str.length > 0 || filters.includes("promoted") || filters.includes("moreThanValue")
           ? data.filter(item => {
             if ((filters.includes("promoted") && !item.rise) || (filters.includes("moreThanValue") && item.salary > 1000)) {
@@ -103,7 +101,7 @@ class App extends React.Component{
   
           <div className="search-panel">
               <SearchPanel onSearch={this.onSearch}/>
-              <AppFilter onFilter={this.onFilter}/>
+              <AppFilter onFilter={this.onFilter} filters={filters}/>
           </div>
           
           <EmployeesList data={visibleData} 
