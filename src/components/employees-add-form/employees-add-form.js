@@ -19,22 +19,37 @@ class EmployeesAddForm extends React.Component {
         })
     }
 
-    getItem = () => {
+    onSubmit = (e) => {
+        e.preventDefault();
+        const {isValid, errorMsg} = this.validateForm();
         const {name, salary} = this.state;
-        if (name === "") return;
-        return {
-            name: name,
-            salary: (salary < 0 || isNaN(salary)) ? 0 : salary 
+        if (!isValid) {
+            alert(errorMsg);
+        } else {
+            this.props.onAdd({name: name, salary: salary });
+            this.setState(() => ({
+                name: '',
+                salary: 0
+            }))
         }
     }
 
-    onSubmit = (e) => {
-        e.preventDefault();
-        this.props.onAdd(this.getItem());
-        this.setState(() => ({
-            name: '',
-            salary: 0
-        }))
+    validateForm = () => {
+        const {name, salary} = this.state;
+        let isValid = true;
+        let errorMsg = '';
+        
+        if (name === undefined || name === null || name === '' || name.length < 2) {
+            isValid = false;
+            errorMsg += "Invalid name\n";
+        }
+        if (salary < 0 || salary === '' || isNaN(salary)) {
+            isValid = false;
+            errorMsg += "Invalid salary\n";
+        }
+        return {
+            isValid: isValid, errorMsg: errorMsg
+        }
     }
 
     render(){

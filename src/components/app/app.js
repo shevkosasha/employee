@@ -30,7 +30,7 @@ class App extends React.Component{
     })
   };
 
-  addItem = (item = {name: 'Mick', salary: 900}) => {
+  addItem = (item) => {
     this.setState(({data}) => {
       return { 
         data: [
@@ -39,22 +39,12 @@ class App extends React.Component{
         ]}
       })
   }
-  
-  onToggleIncrease = (id) => {
-    this.setState(({data}) => {
-      const index = data.findIndex(item => item.id === id);
-      data[index] = {...data[index], increase: !data[index].increase};
-      return {
-        data: data
-      }
-    })
-  }
 
-  onToggleRise = (id) => {
-    console.log(`Rise ${id}`); 
+  onToggleProp = (id, prop) => {
+    console.log(`${prop} ${id}`); 
     this.setState(({data}) => {
       const index = data.findIndex(item => item.id === id);
-      data[index] = {...data[index], rise: !data[index].rise};
+      data[index] = {...data[index], [prop]: !data[index][prop]};
       return {
         data: data
       }
@@ -68,7 +58,6 @@ class App extends React.Component{
     }
   }
 
-
   render(){
     return (
       <div className="app">
@@ -80,7 +69,8 @@ class App extends React.Component{
           </div>
           
           <EmployeesList data={this.state.data} 
-            onDelete={this.deleteItem} onToggleIncrease={this.onToggleIncrease} onToggleRise={this.onToggleRise}/>
+            onDelete={this.deleteItem} 
+            onToggleProp={this.onToggleProp}/>
           <EmployeesAddForm onAdd={this.addItem}/>
       </div>
     );
