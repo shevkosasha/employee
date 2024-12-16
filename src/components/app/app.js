@@ -14,10 +14,12 @@ class App extends React.Component{
       super(props);
       this.state = {
         data: [
-          {name: 'Alex', salary: 5000, increase: false, rise: false, id: 1},
+          {name: 'Alex', salary: 5000, increase: false, rise: true, id: 1},
           {name: 'John', salary: 3000, increase: true, rise: false, id: 2},
           {name: 'Mick', salary: 900, increase: false, rise: true, id: 3}
         ],
+        searchStr: '',
+        filters: [],
       }
       this.maxId = 4;
   }
@@ -41,13 +43,32 @@ class App extends React.Component{
   }
 
   onToggleProp = (id, prop) => {
-    console.log(`${prop} ${id}`); 
     this.setState(({data}) => {
       const index = data.findIndex(item => item.id === id);
       data[index] = {...data[index], [prop]: !data[index][prop]};
       return {
         data: data
       }
+    })
+  }
+
+  onSearch = (str) => {
+    this.setState(({searchStr}) => {
+      return {
+        searchStr: str
+      }
+    })
+  }
+
+  onFilter = (mode) => {
+    let filters = mode === "default" ? [] : [...this.state.filters];
+    if ((mode === "promoted" || mode === "moreThanValue")) {
+      filters = filters.includes(mode) ? filters.filter(f => f != mode) : [...filters, mode];
+    }
+    this.setState(() => {
+        return {
+            filters: filters
+        }
     })
   }
 
@@ -58,17 +79,34 @@ class App extends React.Component{
     }
   }
 
+  filterVisibleData = (data, str, filters) => {
+    const isPromotedFilterOn = filters.includes("promoted");
+    const isMoreThanValueFilterOn = filters.includes("moreThanValue");
+    return str.length > 0 || isPromotedFilterOn || isMoreThanValueFilterOn
+          ? data.filter(item => {
+            if ((isPromotedFilterOn && !item.rise) || (isMoreThanValueFilterOn && item.salary > 1000)) {
+              return false;
+            }
+            return item.name.toUpperCase().includes(str.toUpperCase())
+          }) 
+          : data;
+  };
+
   render(){
+
+    const {data, searchStr, filters} = this.state;
+    const visibleData = this.filterVisibleData(data, searchStr, filters);
+
     return (
       <div className="app">
           <AppInfo info={this.getInfo()}/>
   
           <div className="search-panel">
-              <SearchPanel/>
-              <AppFilter/>
+              <SearchPanel onSearch={this.onSearch}/>
+              <AppFilter onFilter={this.onFilter} filters={filters}/>
           </div>
           
-          <EmployeesList data={this.state.data} 
+          <EmployeesList data={visibleData} 
             onDelete={this.deleteItem} 
             onToggleProp={this.onToggleProp}/>
           <EmployeesAddForm onAdd={this.addItem}/>
