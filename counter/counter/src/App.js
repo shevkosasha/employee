@@ -1,35 +1,66 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css';
 
 function App(props) {
 
-  const [value, setValue] = useState(props.data.initialValue)
+  const сurrencyCodes = ['USD','EUR','PLN','RUB'];
 
-  const inc = () => setValue(value => value + 1)
+  const [amount, setAmount] = useState(0);
+  const [currency, setCurrency] = useState(сurrencyCodes[0]);
+  let [exchangeRateData, setExchangeRateData] = useState({});
+  const [value, setValue] = useState(amount);
 
-  const dec = () => setValue(value => value - 1)
+  const fetchData = async () => {
+    fetch(`https://api.nbrb.by/exrates/rates/${currency}?parammode=2`)
+      .then(response => response.json())
+      .then(data => {
+        setExchangeRateData({...data});
+      })
+  }
 
-  const rnd = () => setValue(() => Math.round(Math.random() * 100))
+  useEffect( () => {
+    document.title = `${amount}  ${currency}`;
+  }, [amount, currency]);
 
-  const reset = () => setValue(() => props.data.initialValue)
+  useEffect( () => {
+    if (amount <= 0) {
+      return;
+    }
+    if (isNaN(exchangeRateData.Cur_OfficialRate)) {
+      fetchData();
+    }
+  }, [amount]);
+
+  useEffect( () => {
+    if (amount <= 0) {
+      return;
+    }
+    fetchData();
+  }, [currency]);
+
+  useEffect( () => {
+    if (exchangeRateData == null) {
+      return;
+    }
+    const {Cur_OfficialRate , Cur_Scale} = exchangeRateData
+    const exchangeValue = isNaN(Cur_OfficialRate) ? 0 : (amount / Cur_OfficialRate * Cur_Scale).toFixed(3);
+    setValue(exchangeValue);
+  }, [amount, exchangeRateData]);
+
+  const handleChangeAmount = (e) => setAmount(() => e.target.value < 0 ? 0 : e.target.value);
+  const handleCurrency = (e) => setCurrency(e.target.value);
 
   return (
     <div class="app">
-      <div class="counter">{value}</div>
+      <div class="input"><input class='input' type='number' value={amount} tabIndex={0} size={5} onChange={handleChangeAmount} /></div>
+      <div class="counter">{value} {currency}</div>
       <div class="controls">
-        <button onClick={inc}> + </button>
-        <button onClick={dec}> - </button>
-        <button onClick={rnd}>RND</button>
-        <button onClick={reset}>RESET</button>
+        {
+          сurrencyCodes.map(code => (<button onClick={handleCurrency} value={code}> {code} </button>))
+        }
       </div>
     </div>
   )
 }
-
-  // 1) Начальное значение счетчика должно передаваться через props
-  // 2) INC и DEC увеличивают и уменьшают счетчик соответственно на 1. Без ограничений, но можете добавить границу в -50/50. По достижению границы ничего не происходит
-  // 3) RND изменяет счетчик в случайное значение от -50 до 50. Конструкцию можете прогуглить за 20 секунд :) Не зависит от предыдущего состояния
-  // 4) RESET сбрасывает счетчик в 0 или в начальное значение из пропсов. Выберите один из вариантов
-// }
 
 export default App;
