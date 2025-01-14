@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import './App.css';
-import useCustomHook from './CustomHook';
+import useCounterHook from './CounterHook';
 
 const RndCounter = (props) => {
 
-    const counter = useCustomHook(props.counter);
+    const counter = useCounterHook(props.counter);
 
     return (
         <div className="component">

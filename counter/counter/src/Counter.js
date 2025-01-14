@@ -1,9 +1,9 @@
 import './App.css';
-import useCustomHook from './CustomHook';
+import useCounterHook from './CounterHook';
 
 const Counter = (props) => {
 
-    const counter = useCustomHook(props.counter);
+    const counter = useCounterHook(props.counter);
 
     return (
       <div className="component">
