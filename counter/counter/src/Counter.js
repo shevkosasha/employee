@@ -3,7 +3,7 @@ import useCounterHook from './CounterHook';
 
 const Counter = (props) => {
 
-    const counter = useCounterHook(props.counter);
+    const counter = useCounterHook(props.defaultValue);
 
     return (
       <div className="component">

@@ -1,10 +1,9 @@
-import { useState } from 'react';
 import './App.css';
 import useCounterHook from './CounterHook';
 
 const RndCounter = (props) => {
 
-    const counter = useCounterHook(props.counter);
+    const counter = useCounterHook(props.defaultValue);
 
     return (
         <div className="component">
